@@ -1,0 +1,34 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: CustomResourceDefinition
+metadata: (1)
+  name: kafkatopics.kafka.strimzi.io
+  labels:
+    app: strimzi
+spec: (2)
+  group: kafka.strimzi.io
+  versions:
+    v1beta2
+  scope: Namespaced
+  names:
+    # ...
+    singular: kafkatopic
+    plural: kafkatopics
+    shortNames:
+    - kt (3)
+  additionalPrinterColumns: (4)
+      # ...
+  subresources:
+    status: {} (5)
+  validation: (6)
+    openAPIV3Schema:
+      properties:
+        spec:
+          type: object
+          properties:
+            partitions:
+              type: integer
+              minimum: 1
+            replicas:
+              type: integer
+              minimum: 1
+              maximum: 32767
