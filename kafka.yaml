@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Gateway
+metadata:
+  name: kafka
+  namespace: argo
+spec:
+  type: kafka
+  eventSourceRef:
+    name: kafka-event-source
+  template:
+    serviceAccountName: argo-events-sa
+  subscribers:
+    http:
+      - http://kafka-terraform-update-sensor.argo.svc:9300/

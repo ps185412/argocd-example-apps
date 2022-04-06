@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: kafka-event-source
+  namespace: argo
+spec:
+  type: "kafka"
+  kafka:
+    terraform:
+      url: cp-kafka-headless:9092
+      topic: "terraform"
+      jsonBody: true
+      partition: "0"
+      connectionBackoff:
+        duration: 10000000000
+        steps: 5
+        factor: 2
+        jitter: 0.2

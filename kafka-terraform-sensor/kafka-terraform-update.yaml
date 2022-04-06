@@ -1,0 +1,50 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: kafka-terraform-update
+  namespace: argo
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  subscription:
+    http:
+      port: 9300
+  dependencies:
+    - name: kafka-terraform-update
+      gatewayName: kafka
+      eventName: terraform
+      filters:
+        context:
+          source: kafka
+          subject: terraform
+          dataContentType: application/json
+        name: action-filter
+        data:
+          - path: body.action
+            type: string
+            value:
+              - update
+  triggers:
+    - template:
+        name: kafka-terraform-update-workflow-trigger
+        k8s:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: terraform-update-kafka-
+                namespace: argo
+              spec:
+                entrypoint: terraform-update
+                templates:
+                - name: terraform-update
+                  steps:
+                    - - name: terraform-update
+                        templateRef:
+                          name: terraform
+                          template: update
